@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("kotlin-parcelize")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 apply ("../shared_dependencies.gradle")
@@ -45,7 +45,7 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation ("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation ("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
-    kapt ("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+    ksp ("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
     androidTestImplementation ("androidx.room:room-testing:${rootProject.extra["room_version"]}")
 
     implementation ("com.squareup.retrofit2:retrofit:${rootProject.extra["retrofit_version"]}")

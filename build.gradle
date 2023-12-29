@@ -22,7 +22,7 @@ buildscript {
     ext.room_version = "2.6.1"
 
     ext.retrofit_version = "2.9.0"
-    ext.logging_interceptor_version = "4.9.0"
+    ext.logging_interceptor_version = "4.9.3"
 
     ext.rxjava_version = "2.2.19"
     ext.rxandroid_version = "2.1.1"
@@ -34,9 +34,10 @@ buildscript {
 
 plugins {
     id 'com.android.application' version '8.2.0' apply false
-    id 'org.jetbrains.kotlin.android' version '1.9.10' apply false
+    id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
     id 'com.android.library' version '8.2.0' apply false
     id 'com.android.dynamic-feature' version '8.2.0' apply false
+    id("com.google.devtools.ksp") version "1.9.22-1.0.16" apply false
 }
 
 task clean(type: Delete) {
