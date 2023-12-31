@@ -3,32 +3,40 @@ package com.patriciafiona.marioworld.ui.main
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.action.ViewActions.swipeDown
-import androidx.test.espresso.action.ViewActions.swipeUp
+import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.patriciafiona.mario_world.core.data.source.local.DummyDataSource
 import com.patriciafiona.marioworld.DummyCharactersTestData
-import org.junit.Assert.*
 import com.patriciafiona.marioworld.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-
-import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+
+@RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = 24)
 class MainActivityUITest {
 
     private val dummyNews = DummyDataSource.getAllNews()
     private val dummyCharacter = DummyCharactersTestData.generateDummyCharacter()
+
+    private lateinit var mDevice: UiDevice
 
     @get:Rule
     var activityRule = ActivityScenarioRule(MainActivity::class.java)
@@ -36,10 +44,23 @@ class MainActivityUITest {
     @Before
     fun setUp() {
         ActivityScenario.launch(MainActivity::class.java)
+        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     }
 
     @Test
-    fun checkBgSoundButton() {
+    fun featuresTest(){
+        checkBgSoundButton()
+        checkProfilePage()
+    }
+
+    @Test
+    fun newsAndCharacterTest(){
+        loadNews()
+        loadCharacters()
+    }
+
+
+    private fun checkBgSoundButton() {
         onView(withId(R.id.btn_sound)).check(matches(isDisplayed()))
         runBlocking {
             delay(1500)
@@ -54,8 +75,7 @@ class MainActivityUITest {
         }
     }
 
-    @Test
-    fun checkProfilePage() {
+    private fun checkProfilePage() {
         //1. Check if profile button displayed on screen
         onView(withId(R.id.btn_profile)).check(matches(isDisplayed()))
 
@@ -66,10 +86,16 @@ class MainActivityUITest {
         onView(withId(R.id.user_status)).check(matches(withText("Online")))
         onView(withId(R.id.username)).check(matches(withText("Patricia Fiona")))
         onView(withId(R.id.user_email)).check(matches(withText("patriciafiona3@gmail.com")))
+
+        onView(withId(R.id.tv_academy_value)).check(matches(withText("21")))
+        onView(withId(R.id.tv_since_value)).check(matches(withText("2019")))
+        onView(withId(R.id.tv_xp_value)).check(matches(withText("226979")))
+
+        //4. Back to Main Activity
+        onView(withId(R.id.btn_back)).perform(click())
     }
 
-    @Test
-    fun loadNews() {
+    private fun loadNews() {
         //1. Check if recycle view displayed on screen
         onView(withId(R.id.rv_news)).check(matches(isDisplayed()))
 
@@ -82,18 +108,43 @@ class MainActivityUITest {
         onView(withId(R.id.rv_news)).perform(
             RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(1, click())
         )
+
+        //4. Close browser
+        val currentPackage: String = mDevice.currentPackageName
+        assertEquals(currentPackage, "com.android.chrome")
+        mDevice.pressBack()
     }
 
-//    @Test
-//    fun loadCharacters() {
-//        onView(withId(R.id.main_scrollview))
-//            .perform(swipeUp())
-//
-//        onView(withId(R.id.rv_characters)).check(matches(isDisplayed()))
-//        onView(withId(R.id.rv_characters)).perform(
-//            RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyCharacter.size)
-//        )
-//    }
+    private fun loadCharacters() {
+        //0. Scroll to Character RV
+        onView(withId(R.id.rv_characters))
+            .perform(ViewActions.scrollTo())
+            .check(matches(isDisplayed()))
 
+        runBlocking {
+            //1. Check if state is loading
+            onView(withId(R.id.loading_character)).check(matches(isDisplayed()))
 
+            //Give time to get data from API
+            delay(1500)
+
+            //2. Check if recycle view displayed on screen
+            onView(withId(R.id.rv_characters)).check(matches(isDisplayed()))
+
+            //3. Check if RV size equals to data size
+            onView(withId(R.id.rv_characters)).perform(
+                RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyCharacter.size)
+            )
+
+            //4. Try to open one of the Character`
+//            onView(withId(R.id.rv_characters)).perform(
+//                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(2, click())
+//            )
+
+            //5. Check component in UI
+
+            //6.Back to Main Page
+//            onView(withId(R.id.btn_back)).perform(click())
+        }
+    }
 }
