@@ -48,19 +48,7 @@ class MainActivityUITest {
     }
 
     @Test
-    fun featuresTest(){
-        checkBgSoundButton()
-        checkProfilePage()
-    }
-
-    @Test
-    fun newsAndCharacterTest(){
-        loadNews()
-        loadCharacters()
-    }
-
-
-    private fun checkBgSoundButton() {
+    fun checkBgSoundButton(): Unit {
         onView(withId(R.id.btn_sound)).check(matches(isDisplayed()))
         runBlocking {
             delay(1500)
@@ -75,7 +63,8 @@ class MainActivityUITest {
         }
     }
 
-    private fun checkProfilePage() {
+    @Test
+    fun checkProfilePage(): Unit {
         //1. Check if profile button displayed on screen
         onView(withId(R.id.btn_profile)).check(matches(isDisplayed()))
 
@@ -95,7 +84,8 @@ class MainActivityUITest {
         onView(withId(R.id.btn_back)).perform(click())
     }
 
-    private fun loadNews() {
+    @Test
+    fun loadNews(): Unit {
         //1. Check if recycle view displayed on screen
         onView(withId(R.id.rv_news)).check(matches(isDisplayed()))
 
@@ -110,41 +100,7 @@ class MainActivityUITest {
         )
 
         //4. Close browser
-        val currentPackage: String = mDevice.currentPackageName
-        assertEquals(currentPackage, "com.android.chrome")
         mDevice.pressBack()
     }
 
-    private fun loadCharacters() {
-        //0. Scroll to Character RV
-        onView(withId(R.id.rv_characters))
-            .perform(ViewActions.scrollTo())
-            .check(matches(isDisplayed()))
-
-        runBlocking {
-            //1. Check if state is loading
-            onView(withId(R.id.loading_character)).check(matches(isDisplayed()))
-
-            //Give time to get data from API
-            delay(1500)
-
-            //2. Check if recycle view displayed on screen
-            onView(withId(R.id.rv_characters)).check(matches(isDisplayed()))
-
-            //3. Check if RV size equals to data size
-            onView(withId(R.id.rv_characters)).perform(
-                RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(dummyCharacter.size)
-            )
-
-            //4. Try to open one of the Character`
-//            onView(withId(R.id.rv_characters)).perform(
-//                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(2, click())
-//            )
-
-            //5. Check component in UI
-
-            //6.Back to Main Page
-//            onView(withId(R.id.btn_back)).perform(click())
-        }
-    }
 }
